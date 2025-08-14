@@ -1,0 +1,28 @@
+Flask==2.2.5
+celery==5.3.6
+redis==4.5.4
+# For NVIDIA GPU (CUDA 11.8) support, use these lines:
+torch --extra-index-url https://download.pytorch.org/whl/cu118
+torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
+# For CPU-only, comment out the two lines above and uncomment the two lines below:
+# torch
+# torchaudio
+openai-whisper
+moviepy
+opencc-python-reimplemented
+ffmpeg-python
+python-dotenv
+gunicorn
+demucs
+soundfile
+gevent # Added for celery on windows
+
+# New dependencies for User Management and Database
+Flask-SQLAlchemy
+Flask-Migrate
+PyMySQL
+Flask-JWT-Extended
+Flask-Bcrypt
+
+# Dependency for calling external APIs
+requests

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Meeting Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container mt-4 mb-4">
+        <header class="text-center mb-4">
+            <h1 class="display-5"><i class="bi bi-robot me-2"></i>AI 會議助手</h1>
+            <p class="lead text-muted">一個強大的工具，用於轉錄、翻譯和總結您的會議內容。</p>
+        </header>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true"><i class="bi bi-film me-1"></i> 1. 影片轉音訊</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false"><i class="bi bi-mic-fill me-1"></i> 2. 音訊轉文字</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab" aria-controls="tab3" aria-selected="false"><i class="bi bi-translate me-1"></i> 3. 逐段翻譯</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab4-tab" data-bs-toggle="tab" data-bs-target="#tab4" type="button" role="tab" aria-controls="tab4" aria-selected="false"><i class="bi bi-card-text me-1"></i> 4. 會議結論</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="myTabContent">
+                    <!-- Tab 1: Video to Audio -->
+                    <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+                        <h5 class="card-title">影片轉音訊 (.wav)</h5>
+                        <p class="card-text">從影片檔案中提取音軌，以便進行後續處理。</p>
+                        <div class="mb-3">
+                            <label for="video-file" class="form-label">選擇影片檔案 (.mp4, .mov, .avi):</label>
+                            <input class="form-control" type="file" id="video-file" accept=".mp4,.mov,.avi">
+                        </div>
+                        <button class="btn btn-primary w-100 action-btn" data-task="extract_audio"><i class="bi bi-arrow-repeat me-2"></i>開始轉換</button>
+                    </div>
+
+                    <!-- Tab 2: Audio to Text -->
+                    <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+                        <h5 class="card-title">音訊轉文字 (Whisper)</h5>
+                        <p class="card-text">將音訊檔案轉錄成帶有時間戳的逐字稿。</p>
+                        <div class="mb-3">
+                            <label for="audio-file" class="form-label">選擇音訊檔案 (.mp3, .wav, .m4a):</label>
+                            <input class="form-control" type="file" id="audio-file" accept=".mp3,.wav,.m4a">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="lang-select" class="form-label">音訊語言:</label>
+                                <select id="lang-select" class="form-select">
+                                    <option value="auto">自動偵測</option>
+                                    <option value="zh">中文</option><option value="en">英文</option>
+                                    <option value="ja">日文</option><option value="ko">韓文</option>
+                                    <option value="vi">越南文</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="use-demucs">
+                            <label class="form-check-label" for="use-demucs">啟用 AI 人聲分離 (適用於嘈雜音訊)</label>
+                        </div>
+                        <button class="btn btn-primary w-100 action-btn" data-task="transcribe_audio"><i class="bi bi-mic-fill me-2"></i>開始轉錄</button>
+                    </div>
+
+                    <!-- Tab 3: Translate Text -->
+                    <div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab3-tab">
+                        <h5 class="card-title">逐段翻譯 (Dify)</h5>
+                        <p class="card-text">將逐字稿檔案進行逐段對照翻譯。</p>
+                        <div class="mb-3">
+                            <label for="transcript-file" class="form-label">選擇逐字稿檔案 (.txt):</label>
+                            <input class="form-control" type="file" id="transcript-file" accept=".txt">
+                        </div>
+                        <div class="mb-3">
+                            <label for="translate-lang-select" class="form-label">目標翻譯語言:</label>
+                            <select id="translate-lang-select" class="form-select">
+                                <option value="Traditional Chinese (繁體中文)">繁體中文</option>
+                                <option value="Simplified Chinese (简体中文)">簡體中文</option>
+                                <option value="English">English</option>
+                                <option value="Japanese (日本語)">日本語</option>
+                                <option value="Korean (한국어)">한국어</option>
+                                <option value="Vietnamese (Tiếng Việt)">Tiếng Việt (越南文)</option>
+                                <option value="French (Français)">Français (法文)</option>
+                                <option value="German (Deutsch)">Deutsch (德文)</option>
+                                <option value="Spanish (Español)">Español (西班牙文)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary w-100 action-btn" data-task="translate_text"><i class="bi bi-translate me-2"></i>開始翻譯</button>
+                    </div>
+
+                    <!-- Tab 4: Summarize Text -->
+                    <div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab4-tab">
+                        <h5 class="card-title">會議結論整理 (Dify)</h5>
+                        <p class="card-text">從逐字稿或貼上的文字中生成會議摘要。</p>
+                        <div class="mb-3">
+                            <label for="summary-file-input" class="form-label">上傳文稿檔案 (.txt):</label>
+                            <input class="form-control" type="file" id="summary-file-input" accept=".txt">
+                        </div>
+                        <div class="mb-3">
+                            <label for="summary-source-text" class="form-label">或直接貼上文稿:</label>
+                            <textarea id="summary-source-text" class="form-control" rows="6" placeholder="請在此處貼上要總結的完整文字... (如果已選擇檔案，將優先使用檔案內容)"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="summary-lang-select" class="form-label">結論生成語言:</label>
+                            <select id="summary-lang-select" class="form-select">
+                                <option value="Traditional Chinese (繁體中文)">繁體中文</option>
+                                <option value="Simplified Chinese (简体中文)">簡體中文</option>
+                                <option value="English">English</option>
+                                <option value="Japanese (日本語)">日本語</option>
+                                <option value="Korean (한국어)">한국어</option>
+                                <option value="Vietnamese (Tiếng Việt)">Tiếng Việt (越南文)</option>
+                                <option value="French (Français)">Français (法文)</option>
+                                <option value="German (Deutsch)">Deutsch (德文)</option>
+                                <option value="Spanish (Español)">Español (西班牙文)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary w-100 action-btn" data-task="summarize_text"><i class="bi bi-card-text me-2"></i>產生初版結論</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress and Result Section -->
+        <div id="progress-container" class="mt-4" style="display: none;">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">處理進度</h5>
+                    <p id="status-text" class="text-muted mb-2">等待中...</p>
+                    <div class="progress" style="height: 25px;">
+                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-container" class="mt-4" style="display: none;">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">處理結果</h5>
+                    <div id="text-result-preview" class="result-preview bg-light p-3 rounded border" style="display: none;"></div>
+                    <a id="download-link" href="#" class="btn btn-success mt-3" style="display: none;"><i class="bi bi-download me-2"></i>下載結果檔案</a>
+                    
+                    <!-- Revision Area -->
+                    <div id="revision-area" class="mt-4 pt-3 border-top" style="display:none;">
+                        <h6 class="card-subtitle mb-2 text-muted">不滿意結果嗎？</h6>
+                        <div class="mb-3">
+                            <label for="revision-instruction" class="form-label"><strong>修改指示:</strong></label>
+                            <textarea id="revision-instruction" class="form-control" rows="3" placeholder="請輸入修改要求，例如：請將結論縮減到 3 個重點。"></textarea>
+                        </div>
+                        <button class="btn btn-secondary w-100 action-btn" data-task="revise_summary"><i class="bi bi-pencil-square me-2"></i>根據指示產生修改版</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
