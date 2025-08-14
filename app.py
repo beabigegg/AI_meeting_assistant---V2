@@ -71,3 +71,12 @@ with app.app_context():
 if __name__ == '__main__':
     port = int(os.environ.get("FLASK_RUN_PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
+
+
+# === register new blueprints (AI sync + action items) ===
+from ai_routes import ai_bp
+from action_item_routes import action_bp
+try: app.register_blueprint(ai_bp)
+except Exception as e: print("ai_routes not registered:", e)
+try: app.register_blueprint(action_bp)
+except Exception as e: print("action_item_routes not registered:", e)

@@ -1,5 +1,19 @@
 import axios from 'axios';
 
+// 基底位址：優先走 Vite/環境變數，否則退回 /api
+const api = axios.create({
+  baseURL: import.meta?.env?.VITE_API_BASE_URL || '/api',
+});
+
+// 統一：從 localStorage 取 'token'
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export default api;
+
 // Configure the default axios instance to automatically handle the base URL and JWT token
 axios.defaults.baseURL = '/api';
 
@@ -107,3 +121,27 @@ export const previewActionItems = (textContent) => {
 export const batchCreateActionItems = (meetingId, actionItems) => {
     return axios.post(`/meetings/${meetingId}/action_items/batch`, actionItems);
 };
+
+// === AI 同步處理 ===
+export const translateText = (text, target_lang = '繁體中文') =>
+  api.post('/translate/text', { text, target_lang }).then(r => r.data);
+
+export const summarizeText = (text) =>
+  api.post('/summarize/text', { text }).then(r => r.data);
+
+export const previewActionItems = (text) =>
+  api.post('/action-items/preview', { text }).then(r => r.data);
+
+// === 代辦儲存 ===
+export const createActionItem = (payload) =>
+  api.post('/action-items', payload).then(r => r.data);
+
+export const batchSaveActionItems = (meetingId, items) =>
+  api.post(`/meetings/${meetingId}/action-items/batch`, { items }).then(r => r.data);
+
+// === 你既有的 API 若已存在就保留；以下是範例 ===
+export const getMeetings = () =>
+  api.get('/meetings').then(r => r.data);
+
+export const login = (username, password) =>
+  api.post('/login', { username, password }).then(r => r.data);
